@@ -14,9 +14,10 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.db.models import Count
 
+
 class CreateRequest(CreateView):
     model = Request
-    template_name='mainapp/request_form.html'
+    template_name = 'mainapp/request_form.html'
     fields = [
         'district',
         'location',
@@ -52,7 +53,7 @@ class RegisterVolunteer(CreateView):
 
 class RegisterContributor(CreateView):
     model = Contributor
-    fields = ['name', 'district', 'phone', 'address',  'commodities']
+    fields = ['name', 'district', 'phone', 'address', 'commodities']
     success_url = '/contrib_success'
 
 
@@ -71,11 +72,14 @@ class RegSuccess(TemplateView):
 class ContribSuccess(TemplateView):
     template_name = "mainapp/contrib_success.html"
 
+
 class DisclaimerPage(TemplateView):
     template_name = "mainapp/disclaimer.html"
 
+
 class AboutIEEE(TemplateView):
     template_name = "mainapp/aboutieee.html"
+
 
 class DistNeeds(TemplateView):
     template_name = "mainapp/district_needs.html"
@@ -86,6 +90,7 @@ class DistNeeds(TemplateView):
         # Add in a QuerySet of all the books
         context['district_data'] = DistrictNeed.objects.all()
         return context
+
 
 class RescueCampFilter(django_filters.FilterSet):
     class Meta:
@@ -98,11 +103,14 @@ class RescueCampFilter(django_filters.FilterSet):
         if self.data == {}:
             self.queryset = self.queryset.none()
 
+
 def relief_camps(request):
     filter = RescueCampFilter(request.GET, queryset=RescueCamp.objects.all())
-    relief_camps = filter.qs.annotate(count=Count('person')).order_by('district','name').all()
+    relief_camps = filter.qs.annotate(count=Count('person')).order_by('district', 'name').all()
 
-    return render(request, 'mainapp/relief_camps.html', {'filter': filter , 'relief_camps' : relief_camps, 'district_chosen' : len(request.GET.get('district') or '')>0 })
+    return render(request, 'mainapp/relief_camps.html', {'filter': filter, 'relief_camps': relief_camps,
+                                                         'district_chosen': len(request.GET.get('district') or '') > 0})
+
 
 class RequestFilter(django_filters.FilterSet):
     class Meta:
@@ -110,11 +118,11 @@ class RequestFilter(django_filters.FilterSet):
         # fields = ['district', 'status', 'needwater', 'needfood', 'needcloth', 'needmed', 'needkit_util', 'needtoilet', 'needothers',]
 
         fields = {
-                    'district' : ['exact'],
-                    'requestee' : ['icontains'],
-                    'requestee_phone' : ['exact'],
-                    'location' : ['icontains']
-                 }
+            'district': ['exact'],
+            'requestee': ['icontains'],
+            'requestee_phone': ['exact'],
+            'location': ['icontains']
+        }
 
     def __init__(self, *args, **kwargs):
         super(RequestFilter, self).__init__(*args, **kwargs)
@@ -124,12 +132,13 @@ class RequestFilter(django_filters.FilterSet):
 
 
 def request_list(request):
-    filter = RequestFilter(request.GET, queryset=Request.objects.all() )
+    filter = RequestFilter(request.GET, queryset=Request.objects.all())
     req_data = filter.qs.order_by('-id')
     paginator = Paginator(req_data, 100)
     page = request.GET.get('page')
     req_data = paginator.get_page(page)
-    return render(request, 'mainapp/request_list.html', {'filter': filter , "data" : req_data })
+    return render(request, 'mainapp/request_list.html', {'filter': filter, "data": req_data})
+
 
 def request_details(request, request_id=None):
     if not request_id:
@@ -139,7 +148,8 @@ def request_details(request, request_id=None):
         req_data = Request.objects.get(id=request_id)
     except:
         return HttpResponseRedirect("/error?error_text={}".format('Sorry, we couldnt fetch details for that request'))
-    return render(request, 'mainapp/request_details.html', {'filter' : filter, 'req': req_data })
+    return render(request, 'mainapp/request_details.html', {'filter': filter, 'req': req_data})
+
 
 class DistrictManagerFilter(django_filters.FilterSet):
     class Meta:
@@ -152,9 +162,11 @@ class DistrictManagerFilter(django_filters.FilterSet):
         if self.data == {}:
             self.queryset = self.queryset.none()
 
+
 def districtmanager_list(request):
     filter = DistrictManagerFilter(request.GET, queryset=DistrictManager.objects.all())
     return render(request, 'mainapp/districtmanager_list.html', {'filter': filter})
+
 
 class Maintenance(TemplateView):
     template_name = "mainapp/maintenance.html"
@@ -163,64 +175,74 @@ class Maintenance(TemplateView):
 def mapdata(request):
     data = Request.objects.exclude(latlng__exact="").values()
 
-    return JsonResponse(list(data) , safe=False)
+    return JsonResponse(list(data), safe=False)
+
 
 def mapview(request):
-    return render(request,"map.html")
+    return render(request, "map.html")
+
 
 def dmodash(request):
-    return render(request , "dmodash.html")
+    return render(request, "dmodash.html")
+
 
 def dmoinfo(request):
-    if("district" not in request.GET.keys()):return HttpResponseRedirect("/")
+    if ("district" not in request.GET.keys()): return HttpResponseRedirect("/")
     dist = request.GET.get("district")
-    reqserve = Request.objects.all().filter(status = "sup" , district = dist).count()
-    reqtotal = Request.objects.all().filter(district = dist).count()
-    volcount = Volunteer.objects.all().filter(district = dist).count()
-    conserve = Contributor.objects.all().filter(status = "ful" , district = dist).count()
-    contotal = Contributor.objects.all().filter(district = dist).count()
-    return render(request ,"dmoinfo.html",{"reqserve" : reqserve , "reqtotal" : reqtotal , "volcount" : volcount , "conserve" : conserve , "contotal" : contotal })
+    reqserve = Request.objects.all().filter(status="sup", district=dist).count()
+    reqtotal = Request.objects.all().filter(district=dist).count()
+    volcount = Volunteer.objects.all().filter(district=dist).count()
+    conserve = Contributor.objects.all().filter(status="ful", district=dist).count()
+    contotal = Contributor.objects.all().filter(district=dist).count()
+    return render(request, "dmoinfo.html",
+                  {"reqserve": reqserve, "reqtotal": reqtotal, "volcount": volcount, "conserve": conserve,
+                   "contotal": contotal})
+
 
 def error(request):
     error_text = request.GET.get('error_text')
-    return render(request , "mainapp/error.html", {"error_text" : error_text})
+    return render(request, "mainapp/error.html", {"error_text": error_text})
+
 
 def logout_view(request):
     logout(request)
     # Redirect to camps page instead
     return redirect('relief_camps')
 
+
 class PersonForm(forms.ModelForm):
     class Meta:
-       model = Person
-       fields = [
-        'camped_at',
-        'name',
-        'phone',
-        'age',
-        'gender',
-        'district',
-        'address',
-        'notes'
+        model = Person
+        fields = [
+            'camped_at',
+            'name',
+            'phone',
+            'age',
+            'gender',
+            'district',
+            'address',
+            'notes'
         ]
-       
-       widgets = {
-           'address': forms.Textarea(attrs={'rows':3}),
-           'notes': forms.Textarea(attrs={'rows':3}),
-           'gender': forms.RadioSelect()
+
+        widgets = {
+            'address': forms.Textarea(attrs={'rows': 3}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
+            'gender': forms.RadioSelect()
         }
 
+        ##Testing some changes
 
     def __init__(self, *args, **kwargs):
-       user = kwargs.pop('user')
-       super(PersonForm, self).__init__(*args, **kwargs)
-       self.fields['camped_at'].queryset = RescueCamp.objects.filter(data_entry_user=user)
-       self.fields['camped_at'].initial = RescueCamp.objects.filter(data_entry_user=user).first()
+        user = kwargs.pop('user')
+        super(PersonForm, self).__init__(*args, **kwargs)
+        self.fields['camped_at'].queryset = RescueCamp.objects.filter(data_entry_user=user)
+        self.fields['camped_at'].initial = RescueCamp.objects.filter(data_entry_user=user).first()
 
-class AddPerson(SuccessMessageMixin,LoginRequiredMixin,CreateView):
+
+class AddPerson(SuccessMessageMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     model = Person
-    template_name='mainapp/add_person.html'  
+    template_name = 'mainapp/add_person.html'
     form_class = PersonForm
     success_url = '/add_person/'
     success_message = "'%(name)s' registered successfully"
@@ -230,19 +252,20 @@ class AddPerson(SuccessMessageMixin,LoginRequiredMixin,CreateView):
         kwargs['user'] = self.request.user
         return kwargs
 
+
 class PeopleFilter(django_filters.FilterSet):
-    fields = ['name', 'phone','address','district','notes','gender','camped_at']
+    fields = ['name', 'phone', 'address', 'district', 'notes', 'gender', 'camped_at']
 
     class Meta:
         model = Person
         fields = {
-            'name' : ['icontains'],
-            'phone' : ['icontains'],
-            'address' : ['icontains'],
-            'district' : ['exact'],
-            'notes':['icontains'],
-            'gender':['exact'],
-            'camped_at':['exact']
+            'name': ['icontains'],
+            'phone': ['icontains'],
+            'address': ['icontains'],
+            'district': ['exact'],
+            'notes': ['icontains'],
+            'gender': ['exact'],
+            'camped_at': ['exact']
         }
 
         # TODO - field order seems to not be working!
@@ -253,10 +276,11 @@ class PeopleFilter(django_filters.FilterSet):
         if self.data == {}:
             self.queryset = self.queryset.all()
 
+
 def find_people(request):
     filter = PeopleFilter(request.GET, queryset=Person.objects.all())
-    people = filter.qs.order_by('name','-added_at')
+    people = filter.qs.order_by('name', '-added_at')
     paginator = Paginator(people, 50)
     page = request.GET.get('page')
     people = paginator.get_page(page)
-    return render(request, 'mainapp/people.html', {'filter': filter , "data" : people })
+    return render(request, 'mainapp/people.html', {'filter': filter, "data": people})
