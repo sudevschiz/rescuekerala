@@ -1,20 +1,21 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 districts = (
-    ('tvm','Thiruvananthapuram'),
-    ('ptm','Pathanamthitta'),
-    ('alp','Alappuzha'),
-    ('ktm','Kottayam'),
-    ('idk','Idukki'),
-    ('mpm','Malappuram'),
-    ('koz','Kozhikode'),
-    ('wnd','Wayanad'),
-    ('knr','Kannur'),
-    ('ksr','Kasaragod'),
-    ('pkd','Palakkad'),
-    ('tcr','Thrissur'),
-    ('ekm','Ernakulam'),
-    ('kol','Kollam'),
+    ('alp','Alappuzha - ആലപ്പുഴ'),
+    ('ekm','Ernakulam - എറണാകുളം'),
+    ('idk','Idukki - ഇടുക്കി'),
+    ('knr','Kannur - കണ്ണൂർ'),
+    ('ksr','Kasaragod - കാസർഗോഡ്'),
+    ('kol','Kollam - കൊല്ലം'),
+    ('ktm','Kottayam - കോട്ടയം'),
+    ('koz','Kozhikode - കോഴിക്കോട്'),
+    ('mpm','Malappuram - മലപ്പുറം'),
+    ('pkd','Palakkad - പാലക്കാട്'),
+    ('ptm','Pathanamthitta - പത്തനംതിട്ട'),
+    ('tvm','Thiruvananthapuram - തിരുവനന്തപുരം'),
+    ('tcr','Thrissur - തൃശ്ശൂർ'),
+    ('wnd','Wayanad - വയനാട്'),
 )
 
 status_types =(
@@ -44,6 +45,12 @@ vol_categories = (
     ('oth', 'Other')
 )
 
+gender =(
+    (0,'Male'),
+    (1,'Female'),
+    (2,'Others')
+)
+
 class Request(models.Model):
     district = models.CharField(
         max_length = 15,
@@ -55,6 +62,7 @@ class Request(models.Model):
     requestee_phone = models.CharField(max_length=10,verbose_name='Requestee Phone - അപേക്ഷകന്‍റെ ഫോണ്‍ നമ്പര്‍')
     latlng = models.CharField(max_length=100, verbose_name='GPS Coordinates - GPS നിർദ്ദേശാങ്കങ്ങൾ ', blank=True)
     latlng_accuracy = models.CharField(max_length=100, verbose_name='GPS Accuracy - GPS കൃത്യത ', blank=True)
+    is_request_for_others = models.BooleanField(verbose_name='Requesting for others - മറ്റൊരാൾക്ക് വേണ്ടി അപേക്ഷിക്കുന്നു  ', default=False)
 
     needwater = models.BooleanField(verbose_name='Water - വെള്ളം')
     needfood = models.BooleanField(verbose_name='Food - ഭക്ഷണം')
@@ -165,6 +173,7 @@ class DistrictNeed(models.Model):
     def __str__(self):
         return self.get_district_display()
 
+
 class DistrictCollection(models.Model):
     district = models.CharField(
         max_length=15,
@@ -173,3 +182,45 @@ class DistrictCollection(models.Model):
     collection = models.TextField(
         verbose_name="Details of collected items"
     )
+
+class RescueCamp(models.Model):
+    verbose_name = 'Relief Camp'
+    name = models.CharField(max_length=50,verbose_name="Name")
+    location = models.TextField(verbose_name="Address",blank=True,null=True)
+    district = models.CharField(
+        max_length=15,
+        choices=districts
+    )
+    taluk = models.CharField(max_length=50,verbose_name="Taluk")
+    village = models.CharField(max_length=50,verbose_name="Village")
+    contacts = models.TextField(verbose_name="Phone Numbers",blank=True,null=True)
+    data_entry_user = models.ForeignKey(User,models.SET_NULL,blank=True,null=True)
+    map_link = models.CharField(max_length=250, verbose_name='Map link',blank=True,null=True,help_text="Copy and paste the full Google Maps link")
+    latlng = models.CharField(max_length=100, verbose_name='GPS Coordinates', blank=True,help_text="Comma separated latlng field. Leave blank if you don't know it")
+    class Meta:
+        verbose_name = 'Relief Camp'
+    def __str__(self):
+        return self.name
+
+
+class Person(models.Model):
+    name = models.CharField(max_length=30,blank=False,null=False,verbose_name="Name - പേര്")
+    phone = models.CharField(max_length=11,null=True,blank=True,verbose_name='Mobile - മൊബൈൽ')
+    age = models.IntegerField(null=True,blank=True,verbose_name="Age - പ്രായം")
+    gender = models.IntegerField(
+        choices = gender,
+        verbose_name='Gender - ലിംഗം',
+        null=True,blank=True
+    )
+    address = models.TextField(max_length=150,null=True,blank=True,verbose_name="Address - വിലാസം")
+    district = models.CharField(
+        max_length = 15,
+        choices = districts,
+        verbose_name='District - ജില്ല',
+        null=True,blank=True
+    )
+    notes = models.TextField(max_length=500,null=True,blank=True,verbose_name='Notes - കുറിപ്പുകൾ')
+    camped_at = models.ForeignKey(RescueCamp,models.CASCADE,blank=False,null=False,verbose_name='Camp Name - ക്യാമ്പിന്റെ പേര്')
+    added_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+
+{% block content %}  
+  <div class="text-right">
+    <a href="/find_people">Search</a> | 
+    <a href="/logout">Logout</a>
+  </div>
+
+  <h3 class="text-center">
+      Person Registration | 
+      വ്യക്തിയെ രജിസ്റ്റർ ചെയ്യുക      
+  </h3>
+
+  <div class="text-center text-danger">
+      {% if messages %}
+        {% for message in messages %}
+          <h3>{{ message }}</h3>
+        {% endfor %}
+      {% endif %}
+  </div>
+
+  <form method="post"  class="simple-form">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+    <button type="submit" class="btn btn-success">
+    Submit {% bootstrap_icon "chevron-right" %}
+    </button>
+    {% endbuttons %}
+
+    <p class="text-center">
+        Please enter all available information. This can help relatives find them if required. <br>
+        ബന്ധുക്കൾക്ക് ഇവരെ കണ്ടെത്തുന്നതിന് ഇത് സഹായിക്കും
+    </p>
+  </form> 
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>
+  $('#id_gender_0').parents('.radio').hide();
+  $('#id_gender > .radio').removeClass('radio').addClass('radio-inline');
+  </script>
+
+{% endblock %}

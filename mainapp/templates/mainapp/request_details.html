@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+
+<form action="{%url 'requestlistview' %}" method="get" class="text-center">
+       {{ filter.form.as_p }}
+       <input value="View requests" class="btn btn-primary" type="submit" />
+ </form>
+ <div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th colspan="2" style="text-align:center;">Request details</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td><b> District : </b></td><td>{{ req.get_district_display }}</td>
+      </tr>
+      <tr>
+        <td><b> Location : </b></td><td>{{ req.location }}</td>
+      </tr>
+      <tr>
+        <td><b> GPS Location : </b></td>
+        <td>
+          {% if not req.is_request_for_others and req.latlng %}
+            <a class="btn btn-sm btn-success" href="https://maps.google.com/?q={{ req.latlng }}" target="_blank">Open in maps</a>
+            <br>
+            Accuracy: {{ req.latlng_accuracy }}
+          {% else %}
+            NA
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td><b> Requestee : </b></td><td>{{ req.requestee }}</td>
+      </tr>
+      <tr>
+        <td><b> Contact number : </b></td><td><a href="tel:{{ req.requestee_phone }}" >{{ req.requestee_phone }}</a></td>
+      </tr>
+      <tr>
+        <td><b> Summary of request : </b></td><td>{{ req.summarise | linebreaks }}</td>
+      </tr>
+      <tr>
+        <td><b> Date : </b></td><td>{{ req.dateadded }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}

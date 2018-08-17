@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+<h3>
+    Person Search - വ്യക്തിയെ തിരയുക
+</h3>
+<p>
+    ദുരിതാശ്വാസക്യാമ്പിൽ രജിസ്റ്റർ ചെയ്ത വ്യക്തിയ്ക്കായി തിരയുക
+</p>
+<div class="row">
+    <div class="col-md-4">
+        <form action="" method="get">
+            Search with name, mobile number etc. <br>
+            പേരോ മൊബൈൽ നമ്പറോ ഉപയോഗിച്ച് തിരയാം 
+            <hr>
+            {{ filter.form.as_p }}
+
+          <button type="submit" class="btn btn-success btn-lg">Search {% bootstrap_icon "chevron-right" %}</button>
+      </form>
+    </div>
+    <div class="col-md-8">
+        <div class="table-responsive">
+            <table class="table">
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Address</th>
+                <th>District</th>
+                <th>Camp Name</th>
+                <th>Notes</th>
+                <th>Registered On</th>
+              </tr>
+              {% for req in data %}
+                  <tr>
+                    <td>{{ req.name }}</td>
+                    <td>{{ req.age }}</td>
+                    <td>{{ req.address }}</td>
+                    <td>{{ req.get_district_display}}</td>
+                    <td>{{ req.camped_at}}</td>
+                    <td>{{ req.notes}}</td>
+                    <td>{{ req.added_at}}</td>
+                  </tr>
+              {% endfor %}
+            </table>
+            
+            {% if data.paginator.num_pages > 1 %}
+            <div class="pagination" >
+              <span class="step-links">
+                  {% if data.has_previous %}
+                      <a href="?page=1&name__icontains={{ request.GET.name__icontains }}&phone__icontains={{ request.GET.phone__icontains }}&address__icontains={{ request.GET.address__icontains }}&district={{ request.GET.district }}&notes__icontains={{ request.GET.notes__icontains }}&gender={{ request.GET.gender }}&camped_at={{ request.GET.camped_at }}">&laquo; first</a>
+                      <a href="?page={{data.previous_page_number}}&name__icontains={{ request.GET.name__icontains }}&phone__icontains={{ request.GET.phone__icontains }}&address__icontains={{ request.GET.address__icontains }}&district={{ request.GET.district }}&notes__icontains={{ request.GET.notes__icontains }}&gender={{ request.GET.gender }}&camped_at={{ request.GET.camped_at }}">previous</a>
+                  {% endif %}
+            
+                  {% for i in data.paginator.page_range %}
+                  {% if data.number == i %}
+                    <a class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></a>
+                  {% else %}
+                    <a href="?page={{i}}&name__icontains={{ request.GET.name__icontains }}&phone__icontains={{ request.GET.phone__icontains }}&address__icontains={{ request.GET.address__icontains }}&district={{ request.GET.district }}&notes__icontains={{ request.GET.notes__icontains }}&gender={{ request.GET.gender }}&camped_at={{ request.GET.camped_at }}">{{ i }}</a>
+                  {% endif %}
+                {% endfor %}
+            
+                  {% if data.has_next %}
+                      <a href="?page={{ data.next_page_number }}&name__icontains={{ request.GET.name__icontains }}&phone__icontains={{ request.GET.phone__icontains }}&address__icontains={{ request.GET.address__icontains }}&district={{ request.GET.district }}&notes__icontains={{ request.GET.notes__icontains }}&gender={{ request.GET.gender }}&camped_at={{ request.GET.camped_at }}">next</a>
+                      <a href="?page={{ data.paginator.num_pages }}&name__icontains={{ request.GET.name__icontains }}&phone__icontains={{ request.GET.phone__icontains }}&address__icontains={{ request.GET.address__icontains }}&district={{ request.GET.district }}&notes__icontains={{ request.GET.notes__icontains }}&gender={{ request.GET.gender }}&camped_at={{ request.GET.camped_at }}">last &raquo;</a>
+                  {% endif %}
+              </span>
+            </div>
+            {% endif %}
+          
+          </div>
+    
+      </div>
+</div>
+
+
+
+
+{% endblock %}

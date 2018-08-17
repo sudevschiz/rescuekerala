@@ -6,4 +6,3 @@ __pycache__
 staticfiles/
 mysite.log
 .idea/*
-*/migrations/*

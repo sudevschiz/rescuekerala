@@ -1,6 +1,5 @@
 body{
     background: #ededed;
-    font-family: 'Raleway';
 }
 .navbar{
     padding: 15px 30px;
@@ -182,3 +181,7 @@ tr:hover td{
 }
 
 .pagination a:hover:not(.active) {background-color: #ddd;}
+
+table thead tr th {
+  border-top: 2px solid #ddd !important;
+}

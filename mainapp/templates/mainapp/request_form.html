@@ -11,12 +11,32 @@
   </button>
   {% endbuttons %}
   </form>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+  <!-- Instruction Modal -->
+  <div id="instructionModal" class="modal  fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+    <div class="modal-dialog" style="background: white">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Allow Location - നിങ്ങളുടെ സ്ഥലം കൊടുക്കുക </h3>
+      </div>
+      <div class="modal-body">
+        നിങ്ങളുടെ സ്ഥലം നൽകുന്നതെങ്ങനെ<br><br>
+
+        1. നിങ്ങളുടെ ബ്രൗസർ <b>"www.keralaresue.in wants to know your location"</b> എന്ന ഒരു സന്ദേശം കാണിക്കും<br>
+        2. സന്ദേശത്തിൽ <b>Allow</b> തിരഞ്ഞെടുക്കുക
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" id="modal_ok_button" aria-hidden="true">Ok</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript">
 	try {
 
-  		window.addEventListener('load', checkVisibility, false);
-  		var checkboxes = document.querySelectorAll("input[type=checkbox]");
+		window.addEventListener('load', checkVisibility, false);
+		var checkboxes = document.querySelectorAll("input[type=checkbox]");
 		for(var i=0; i< checkboxes.length; i++) {
 			checkboxes[i].addEventListener("change",checkVisibility);
 		}
@@ -26,7 +46,20 @@
 			Array.prototype.forEach.call(formgroups, function(el, i){
 				var checkbox = el.querySelectorAll(".checkbox");
 				if(checkbox.length > 0){
-					if(el.querySelectorAll("input")[0].checked == true){
+					var checkboxElem = el.querySelectorAll("input")[0];
+					if(checkboxElem.id === "id_is_request_for_others" ){
+						if(checkboxElem.checked){
+							$('#id_latlng').parent().hide();
+							$('#id_latlng_accuracy').parent().hide();
+							$('#id_latlng_display').hide();
+						}
+						else{
+							$('#id_latlng').parent().show();
+							$('#id_latlng_accuracy').parent().show();
+							$('#id_latlng_display').show();
+						}
+					}
+					else if(checkboxElem.checked){
 						formgroups[i+1].style.display = "block";						
 					}
 					else{
@@ -36,7 +69,7 @@
 			});  		
 
 		}
-  	}
+  }
 	catch(err) {
 		console.log("Your browser does not allow some javascript programs.\nError Message : " + err.message)
 	}
@@ -44,8 +77,8 @@
 	window.onload = function(){
         $("#id_requestee_phone").attr('type', 'number');
 		var gpsField = document.getElementById('id_latlng');
-		gpsField.readOnly = true;
 		var gpsAccuracyField = document.getElementById('id_latlng_accuracy');
+		gpsField.readOnly = true;
 		gpsAccuracyField.readOnly = true;
 		var options = {
 			enableHighAccuracy: true
@@ -57,7 +90,7 @@
 				gpsAccuracyField.value = crd.accuracy + ' Meters';
 				$.get('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + crd.latitude + '&lon=' + crd.longitude + '&zoom=18&addressdetails=1')
 					.done(function(response) {
-						var inputElem = $('<input class="form-control" readonly="true" value="' + response.display_name + '"</input>')
+						var inputElem = $('<input class="form-control" id="id_latlng_display" readonly="true" value="' + response.display_name + '"</input>');
 						$(gpsField).before(inputElem);
 						$(gpsField).hide();
 						console.log(response.display_name);
@@ -70,8 +103,10 @@
 		var error = function(err) {
 			console.warn(`ERROR(${err.code}): ${err.message}`);
 		}
-
-		navigator.geolocation.getCurrentPosition(success, error, options);
+    $('#modal_ok_button').click(function(event) {
+      navigator.geolocation.getCurrentPosition(success, error, options);
+    });
+		$('#instructionModal').modal('show');
 	}
 
   </script>

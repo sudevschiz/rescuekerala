@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+
+<h3>
+        Relief Camps | 
+        ദുരിതാശ്വാസ ക്യാമ്പുകൾ
+</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <a class="btn btn-info btn-lg" href="/find_people">
+                Person Search - വ്യക്തിയെ തിരയുക
+        </a>
+    </div>
+    <div class="col-md-8 text-right">
+        <a class="btn btn-default" href="/add_person" style="margin-top: 5px;">
+            Coordinator Login
+        </a>
+        <p>
+          Contact your coordinator to get login details
+          <br>
+          ലോഗിൻ ഡീറ്റെയിൽസ് ലഭിക്കാൻ കോർഡിനേറ്ററെ സമീപിക്കുക
+        </p>
+    </div>
+</div>
+
+<hr>
+
+<div class="text-center">
+  <h4>Select District to see Relief Camps</h4>
+</div>
+
+<form action="" method="get">
+    {{ filter.form }}
+    <button class="btn btn-default" type="submit">Show Relief Camps</button>
+</form>
+
+{% if relief_camps.count > 0 %}
+<div>
+  <table class="table">
+    <tr>
+      <th>District</th>
+      <th>Camp Name</th>
+      <th>Map</th>
+      <th>Address</th>
+      <th>Contact Numbers</th>
+      <th>Registrations</th>
+    </tr>
+  {% for item in relief_camps %}
+    <tr valign="top">
+      <td><strong>{{ item.get_district_display }}</strong></td>
+      <td>
+        {{ item.name }}
+      </td>
+      <td>
+        {% if item.map_link %} <a href="{{ item.map_link}}">Map Link</a> {% else %} N/A {% endif %}
+      </td>
+      <td>
+        {{ item.location | linebreaks }}
+      </td>
+      <td class="phone-links">
+        {{ item.contacts | linebreaks }}
+      </td>
+      <td>
+        {{ item.count }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% elif district_chosen  %}
+<div class="text-center text-warning">
+  No relief camps listed for this district yet.
+</div>
+{% endif %}
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+  $('.phone-links').each(function () {
+    var content = $(this).html();
+    // Convert 10 digit numbers to links
+    links = content.replace(/[0-9 ]{10,15}/g, "<a href=\"tel:$&\">$&</a>");
+    $(this).html(links);
+  })
+
+</script>
+{% endblock %}

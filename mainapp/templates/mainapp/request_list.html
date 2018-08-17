@@ -1,63 +1,106 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
 
+{% block css %}
+<style>
+@media only screen and (max-width: 800px)  {
+
+		#requests-table table, thead, tbody, th, td, tr {
+			display: block;
+		}
+
+		#requests-table thead tr {
+			position: absolute;
+			top: -9999px;
+			left: -9999px;
+		}
+
+    #requests-table tr {
+      margin: 0 0 1rem 0;
+    }
+
+    #requests-table tr:nth-child(odd) {
+      background: #ccc;
+    }
+
+		#requests-table td {
+			/* Behave  like a "row" */
+			border: none;
+			border-bottom: 1px solid #eee;
+			position: relative;
+			padding-left: 50%;
+		}
+
+		#requests-table td:before {
+			/* Now like a table header */
+			position: absolute;
+			/* Top/left values mimic padding */
+			top: 0;
+			left: 6px;
+			width: 45%;
+			padding-right: 10px;
+			white-space: nowrap;
+		}
+		#requests-table td:nth-of-type(1):before { content: "District"; }
+    #requests-table td:nth-of-type(2):before { content: "Location"; }
+    #requests-table td:nth-of-type(3):before { content: "Requestee"; }
+    #requests-table td:nth-of-type(4):before { content: "Phone"; }
+    #requests-table td:nth-of-type(5):before { content: "Date"; }
+    #requests-table td:nth-of-type(6):before { content: "More details"; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <form action="" method="get" class="text-center">
        {{ filter.form.as_p }}
        <input value="View requests" class="btn btn-primary" type="submit" />
  </form>
- <div class="table-responsive">
+ <div id="requests-table" class="table-responsive">
   <table class="table">
-    <tr>
-      <th>District</th>
-      <th>Location</th>
-      <th>GPS Location</th>
-      <th>Requestee</th>
-      <th>Contact number</th>
-      <th>Summary of request</th>
-      <th>Date</th>
-    </tr>
+    <thead>
+      <tr>
+        <th>District</th>
+        <th>Location</th>
+        <th>Requestee</th>
+        <th>Phone</th>
+        <th>Date</th>
+        <th>More details</th>
+      </tr>
+    </thead>
+    <tbody>
     {% for req in data %}
         <tr>
           <td>{{ req.get_district_display }}</td>
           <td>{{ req.location }}</td>
-          <td>
-            {% if req.latlng %}
-              <a class="btn btn-sm btn-success" href="https://maps.google.com/?q={{ req.latlng }}" target="_blank">Open in maps</a>
-              <br>
-              Accuracy: {{ req.latlng_accuracy }}
-            {% else %}
-              NA
-            {% endif %}
-          </td>
           <td>{{ req.requestee }}</td>
-          <td>{{ req.requestee_phone }}</td> 
-          <td>{{ req.summarise | linebreaks }}</td>
+          <td><a href="tel:{{ req.requestee_phone }}" >{{ req.requestee_phone }}</a></td>
           <td>{{ req.dateadded }}</td>
+          <td><a class="btn btn-sm btn-success" href="{%url 'requestdetailsview' req.id %}" target="_blank">More details</a>
         </tr>
     {% endfor %}
-
+  </tbody>
   </table>
 
   <div class="pagination" >
     <span class="step-links">
         {% if data.has_previous %}
-            <a href="?page=1&district={{ request.GET.district }}">&laquo; first</a>
-            <a href="?page={{ data.previous_page_number }}&district={{ request.GET.district }}">previous</a>
+            <a href="?page=1&district={{ request.GET.district }}&requestee__icontains={{ request.GET.requestee__icontains }}&requestee_phone={{ request.GET.requestee_phone }}&location__icontains={{ request.GET.location__icontains }}">&laquo; first</a>
+            <a href="?page={{ data.previous_page_number }}&district={{ request.GET.district }}&requestee__icontains={{ request.GET.requestee__icontains }}&requestee_phone={{ request.GET.requestee_phone }}&location__icontains={{ request.GET.location__icontains }}">previous</a>
         {% endif %}
-  
+
         {% for i in data.paginator.page_range %}
         {% if data.number == i %}
           <a class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></a>
         {% else %}
-          <a href="?page={{ i }}&district={{ request.GET.district }}">{{ i }}</a>
+          <a href="?page={{ i }}&district={{ request.GET.district }}&requestee__icontains={{ request.GET.requestee__icontains }}&requestee_phone={{ request.GET.requestee_phone }}&location__icontains={{ request.GET.location__icontains }}">{{ i }}</a>
         {% endif %}
       {% endfor %}
-  
+
         {% if data.has_next %}
-            <a href="?page={{ data.next_page_number }}&district={{ request.GET.district }}">next</a>
-            <a href="?page={{ data.paginator.num_pages }}&district={{ request.GET.district }}">last &raquo;</a>
+            <a href="?page={{ data.next_page_number }}&district={{ request.GET.district }}&requestee__icontains={{ request.GET.requestee__icontains }}&requestee_phone={{ request.GET.requestee_phone }}&location__icontains={{ request.GET.location__icontains }}">next</a>
+            <a href="?page={{ data.paginator.num_pages }}&district={{ request.GET.district }}&requestee__icontains={{ request.GET.requestee__icontains }}&requestee_phone={{ request.GET.requestee_phone }}&location__icontains={{ request.GET.location__icontains }}">last &raquo;</a>
         {% endif %}
     </span>
   </div>

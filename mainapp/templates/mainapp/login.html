@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block content %}
+  <div class="text-center">
+      <h2>Coordinator Login</h2>
+  </div>
+
+  <div class="row">
+      <div class="col-md-4 col-md-offset-4">
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          <form method="post">
+              {% csrf_token %}
+        
+              <div class="form-group">
+                  <label for="id_username">Username</label>
+                  <input type="text" name="username" required autofocus id="id_username" class="form-control">
+              </div>
+              <div class="form-group">
+                  <label for="id_password">Password</label>
+                  <input type="password" name="password" required id="id_password" class="form-control">
+              </div>
+            
+            <button type="submit" class="btn btn-success">Login</button>
+            <a href="/relief_camps" class="btn btn-link">Go Back</a>
+          </form>
+      </div>
+  </div>
+
+
+{% endblock %}
+
+
+
