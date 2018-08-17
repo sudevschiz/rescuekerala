@@ -8,6 +8,7 @@ urlpatterns = [
     path('request/', views.CreateRequest.as_view(), name='requestview'),
     # path('volunteer/', views.Maintenance.as_view(), name='registerview'),
     path('volunteer/', views.RegisterVolunteer.as_view(), name='registerview'),
+    path('NGO/', views.RegisterNGO.as_view(), name='ngoregisterview'),
     path('requests/', views.request_list, name='requestlistview'),
     url(r'request_details/(?P<request_id>\d+)/$', views.request_details, name='requestdetailsview'),
     path('contactus/', views.districtmanager_list, name='contactus'),

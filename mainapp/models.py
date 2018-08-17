@@ -131,6 +131,31 @@ class Volunteer(models.Model):
         return self.name
 
 
+class NGO(models.Model):
+    district = models.CharField(
+        max_length = 15,
+        choices = districts,
+    )
+    organisation = models.CharField(max_length=250, verbose_name="Name of Organization (സംഘടനയുടെ പേര്)")
+    organisation_type = models.CharField(max_length=250, verbose_name="Type of Organization")
+    organisation_address = models.TextField(default='', verbose_name="Address of Organization")
+    name = models.CharField(max_length=100, verbose_name="Contact Person")
+    phone = models.CharField(max_length=10)
+    description = models.TextField(verbose_name="About Organisation")
+    area = models.TextField(
+        verbose_name = "Area of volunteering"
+    )
+    location = models.CharField(
+        max_length=500,
+        verbose_name="Preferred Location to Volunteer"
+    )
+    is_spoc = models.BooleanField(default=False, verbose_name="Is point of contact")
+    joined = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Contributor(models.Model):
     district = models.CharField(
         max_length = 15,

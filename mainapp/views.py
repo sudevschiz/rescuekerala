@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
-from .models import Request, Volunteer, DistrictManager, Contributor, DistrictNeed, Person, RescueCamp
+from .models import Request, Volunteer, DistrictManager, Contributor, DistrictNeed, Person, RescueCamp, NGO
 import django_filters
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import JsonResponse
@@ -42,19 +42,27 @@ class CreateRequest(CreateView):
         'detailtoilet',
         'needothers'
     ]
-    success_url = '/req_sucess'
+    success_url = '/req_sucess/'
 
 
 class RegisterVolunteer(CreateView):
     model = Volunteer
     fields = ['name', 'district', 'phone', 'organisation', 'area', 'address']
+    success_url = '/reg_success/'
+
+
+class RegisterNGO(CreateView):
+    model = NGO
+    fields = ['organisation', 'organisation_type','organisation_address', 'name', 'phone', 'description', 'area',
+              'location']
     success_url = '/reg_success'
 
 
 class RegisterContributor(CreateView):
     model = Contributor
-    fields = ['name', 'district', 'phone', 'address', 'commodities']
-    success_url = '/contrib_success'
+
+    fields = ['name', 'district', 'phone', 'address',  'commodities']
+    success_url = '/contrib_success/'
 
 
 class HomePageView(TemplateView):
@@ -173,7 +181,10 @@ class Maintenance(TemplateView):
 
 
 def mapdata(request):
-    data = Request.objects.exclude(latlng__exact="").values()
+    if("district" in request.GET.keys()):
+        data = Request.objects.exclude(latlng__exact="").filter(district = request.GET.get("district")).values() 
+    else:
+        data = Request.objects.exclude(latlng__exact="").values()
 
     return JsonResponse(list(data), safe=False)
 
@@ -207,7 +218,7 @@ def error(request):
 def logout_view(request):
     logout(request)
     # Redirect to camps page instead
-    return redirect('relief_camps')
+    return redirect('relief_camps/')
 
 
 class PersonForm(forms.ModelForm):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Request, Volunteer, Contributor, DistrictNeed, DistrictCollection, DistrictManager ,vol_categories, RescueCamp, Person
+from .models import Request, Volunteer, Contributor, DistrictNeed, DistrictCollection, DistrictManager ,vol_categories, RescueCamp, Person, NGO
 import csv
 from django.http import HttpResponse
 
@@ -72,6 +72,34 @@ class VolunteerAdmin(admin.ModelAdmin):
         return response
 
 
+class NGOAdmin(admin.ModelAdmin):
+    actions = ['download_csv']
+    readonly_fields = ('joined',)
+    list_display = ('name', 'phone', 'organisation', 'joined')
+    list_filter = ('district', 'joined',)
+    def download_csv(self, request, queryset):
+        options = vol_categories
+        mapper = {}
+        for i in vol_categories:
+            mapper[i[0]] = i[1]
+        f = open('vol.csv', 'w')
+        writer = csv.writer(f)
+        l = []
+        for i in (NGO._meta.get_fields()):
+            l.append(i.name)
+        writer.writerow(l)
+        data = NGO.objects.all().values_list()
+        for s in data:
+            s = list(s)
+            s[6] = mapper[s[6]]
+            writer.writerow(s)
+        f.close()
+        f = open('vol.csv', 'r')
+        response = HttpResponse(f, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=NGO.csv'
+        return response
+
+
 class ContributorAdmin(admin.ModelAdmin):
     actions = ['download_csv']
     list_filter = ('district', 'status',)
@@ -95,6 +123,7 @@ class ContributorAdmin(admin.ModelAdmin):
 class RescueCampAdmin(admin.ModelAdmin):
     list_display = ('district', 'name', 'location')
 
+
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Volunteer, VolunteerAdmin)
 admin.site.register(Contributor, ContributorAdmin)
@@ -102,3 +131,4 @@ admin.site.register(DistrictNeed)
 admin.site.register(DistrictCollection)
 admin.site.register(DistrictManager)
 admin.site.register(RescueCamp,RescueCampAdmin)
+admin.site.register(NGO, NGOAdmin)
